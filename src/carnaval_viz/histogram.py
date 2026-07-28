@@ -1,5 +1,6 @@
 """Histogram visualization for carnaval_viz."""
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
@@ -115,9 +116,15 @@ def histogram(
 
 
 def _new_figure(figsize: tuple[float, float]):
-    """Create a new Figure and single Axes pair using Matplotlib's OO API."""
-    fig = Figure(figsize=figsize)
-    ax = fig.add_subplot(111)
+    """Create a new Figure and single Axes pair.
+
+    Uses `plt.subplots()` (rather than instantiating `Figure()` directly) so
+    the returned figure is registered with pyplot and `fig.show()` works as
+    documented in the README. Callers that generate many figures in a loop
+    should call `plt.close(fig)` afterward to free memory, since pyplot
+    keeps a reference to every figure it creates until closed.
+    """
+    fig, ax = plt.subplots(figsize=figsize)
     return fig, ax
 
 

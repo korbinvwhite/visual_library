@@ -1,5 +1,6 @@
 """Correlation heatmap visualization for carnaval_viz."""
 
+import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.figure import Figure
 
@@ -52,8 +53,9 @@ def correlation(
     resolved_figsize = figsize or _resolve_figsize(n_columns)
 
     with styling.carnaval_style():
-        fig = Figure(figsize=resolved_figsize)
-        ax = fig.add_subplot(111)
+        # plt.subplots() (rather than Figure() directly) registers the figure
+        # with pyplot, so fig.show() works as documented in the README.
+        fig, ax = plt.subplots(figsize=resolved_figsize)
 
         image = ax.imshow(
             corr_matrix.values,

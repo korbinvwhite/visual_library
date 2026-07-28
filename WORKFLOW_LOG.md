@@ -57,3 +57,17 @@ Supporting files:
 
 **Status:** v0.1.0 fully implemented and locally validated. Not yet committed/pushed — waiting for your review and go-ahead.
 
+### 2026-07-28 — Renamed commit authorship to you
+
+- **What:** Set local git identity to `korbinvwhite <kwhite11@dons.usfca.edu>`, then rewrote the author on the two existing commits on `main` (previously "Claude") using an interactive rebase, and force-pushed the rewritten history to GitHub.
+- **Why:** You wanted commits to show up under your name, not Claude's.
+- **Note:** Rewriting already-pushed history changes commit hashes, so anyone else with a local clone (in this case, you, on your own Mac) needs to sync their local `main` to match GitHub's rewritten version rather than merging the two — resolved via `git reset --hard origin/main` on your machine.
+
+### 2026-07-28 — Fixed `fig.show()` not working (real bug)
+
+- **What:** While testing the install on your machine, `hist_fig.show()` — exactly the usage shown in the README's quick-start example — raised `AttributeError: Figure.show works only for figures managed by pyplot`.
+- **Root cause:** `histogram()` and `correlation()` were building their figures with Matplotlib's low-level `Figure()` class directly, instead of `plt.subplots()`. Using `Figure()` directly keeps the figure outside of "pyplot" (Matplotlib's higher-level, stateful module that also manages interactive windows) — a common choice in plotting libraries to avoid a subtle memory leak (pyplot keeps every figure it creates in memory until explicitly closed, which matters if a library gets called thousands of times in a loop, e.g. for automated batch report generation). The downside is that `.show()` doesn't work on those figures, which directly contradicted our own documented usage.
+- **Fix:** Switched both functions to build their figure via `plt.subplots(figsize=...)` instead, so `.show()` works as documented. Added a note in the code for future maintainers: if `carnaval_viz` is ever used to generate a very large number of figures in a loop, call `plt.close(fig)` after each one to avoid memory buildup.
+- **Verified:** Full test suite still passes (30/30); regenerated the example images to confirm output is visually unchanged; confirmed the returned figure is now pyplot-managed.
+- **Status:** Fixed locally, not yet committed/pushed.
+
