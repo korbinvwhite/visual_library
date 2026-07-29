@@ -9,6 +9,9 @@ Matplotlib's global settings for the rest of the user's program.
 from contextlib import contextmanager
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from matplotlib.lines import Line2D
 
 from . import colors
 
@@ -43,11 +46,14 @@ _STYLE_RC = {
     "figure.dpi": 100,
 }
 
-# Shared reference-line style for the histogram's mean/median markers.
-REFERENCE_LINE_STYLE = {
-    "linewidth": 2,
-    "linestyle": "--",
-}
+# Default marker area range (in points^2, Matplotlib scatter's native size
+# unit) that bubble values are scaled into.
+MIN_BUBBLE_AREA = 40
+MAX_BUBBLE_AREA = 2000
+
+# Shared transparency for bubble markers in both charts.
+BUBBLE_ALPHA = 0.7
+BUBBLE_EDGE_COLOR = colors.LIGHT_CREAM
 
 
 @contextmanager
@@ -75,3 +81,56 @@ def strip_spines(ax):
     """
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+
+
+def scale_marker_sizes(
+    values: pd.Series,
+    min_area: float = MIN_BUBBLE_AREA,
+    max_area: float = MAX_BUBBLE_AREA,
+) -> np.ndarray:
+    """Scale numeric values into Matplotlib scatter marker areas.
+
+    Matplotlib's scatter `s` parameter is an area (in points^2), so values
+    are scaled linearly rather than by radius -- this keeps the visual area
+    of each bubble proportional to its underlying value, which is what
+    makes a bubble chart's sizes readable at a glance.
+
+    Args:
+        values: The numeric values to scale (e.g. estimated audience).
+        min_area: The marker area assigned to the smallest value.
+        max_area: The marker area assigned to the largest value.
+
+    Returns:
+        A NumPy array of marker areas the same length as values.
+    """
+    value_min, value_max = values.min(), values.max()
+    if value_max == value_min:
+        return np.full(len(values), (min_area + max_area) / 2)
+
+    normalized = (values - value_min) / (value_max - value_min)
+    return min_area + normalized * (max_area - min_area)
+
+
+def legend_handles_for_categories(color_map: dict) -> list[Line2D]:
+    """Build proxy legend handles (colored dots) for a category-color mapping.
+
+    Args:
+        color_map: A dict mapping category values to hex color strings, as
+            returned by `colors.categorical_color_map()`.
+
+    Returns:
+        A list of Line2D proxy artists suitable for passing to
+        `ax.legend(handles=...)`.
+    """
+    return [
+        Line2D(
+            [0],
+            [0],
+            marker="o",
+            linestyle="",
+            markerfacecolor=color,
+            markeredgecolor=color,
+            label=str(category),
+        )
+        for category, color in color_map.items()
+    ]

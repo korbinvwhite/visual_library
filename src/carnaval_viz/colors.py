@@ -6,7 +6,7 @@ a range of numbers, here running from ocean blue -> cream -> tropical
 green) for the correlation heatmap.
 """
 
-from matplotlib.colors import LinearSegmentedColormap
+import itertools
 
 # Core palette. Named after the visual theme so usage reads clearly,
 # e.g. colors.EMERALD instead of an unlabeled hex code.
@@ -20,20 +20,38 @@ WARM_ORANGE = "#F28C28"
 LIGHT_CREAM = "#FBF4E4"
 DARK_CHARCOAL = "#2B2B2B"
 
-# Roles used by the styling module and the two chart functions.
-HISTOGRAM_BAR_COLOR = TROPICAL_GREEN
-MEAN_LINE_COLOR = GOLD
-MEDIAN_LINE_COLOR = OCEAN_BLUE
-
 FIGURE_BACKGROUND = "#FFFFFF"
 AXES_BACKGROUND = "#FFFFFF"
 GRID_COLOR = "#D9D2C4"
 TEXT_COLOR = DARK_CHARCOAL
 
-# Diverging colormap for the correlation heatmap: negative correlations
-# render ocean blue, zero renders light cream, positive correlations
-# render tropical green.
-CORRELATION_CMAP = LinearSegmentedColormap.from_list(
-    "carnaval_viz_correlation",
-    [OCEAN_BLUE, LIGHT_CREAM, TROPICAL_GREEN],
-)
+# Qualitative palette used to color categories (e.g. Region) in the bubble
+# chart and circular calendar. Ordered for strong contrast between
+# neighbors; cycles if there are more categories than colors.
+CATEGORICAL_PALETTE = [
+    EMERALD,
+    GOLD,
+    OCEAN_BLUE,
+    CORAL,
+    TURQUOISE,
+    WARM_ORANGE,
+    TROPICAL_GREEN,
+    DARK_CHARCOAL,
+]
+
+
+def categorical_color_map(categories) -> dict:
+    """Assign a consistent palette color to each distinct category.
+
+    Args:
+        categories: An iterable of category values (e.g. a DataFrame
+            column). Order is determined by first appearance in sorted,
+            de-duplicated form so the same categories always map to the
+            same colors across calls.
+
+    Returns:
+        A dict mapping each distinct category value to a hex color string.
+    """
+    unique_categories = sorted(set(categories), key=str)
+    palette_cycle = itertools.cycle(CATEGORICAL_PALETTE)
+    return {category: color for category, color in zip(unique_categories, palette_cycle)}

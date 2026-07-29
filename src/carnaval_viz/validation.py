@@ -2,8 +2,8 @@
 
 Each function checks one thing about the user's input and raises a
 specific, informative exception when something is wrong -- so both
-`histogram()` and `correlation()` can share the same checks instead of
-duplicating logic.
+`bubble_chart()` and `circular_calendar()` can share the same checks
+instead of duplicating logic.
 """
 
 import pandas as pd
@@ -23,101 +23,112 @@ def require_dataframe(df) -> None:
             f"Expected a pandas DataFrame, got {type(df).__name__}. "
             "Pass a DataFrame, e.g. df = pd.read_csv('your_file.csv')."
         )
+    if df.empty:
+        raise ValueError(
+            "The DataFrame is empty. Pass a DataFrame that contains at "
+            "least one row of data."
+        )
 
 
-def require_column_exists(df: pd.DataFrame, column: str) -> None:
-    """Raise KeyError if column is not a column of df.
+def require_columns_exist(df: pd.DataFrame, columns: list[str]) -> None:
+    """Raise KeyError if any of columns is not a column of df.
 
     Args:
         df: The DataFrame to check.
-        column: The column name to look for.
+        columns: The column names to look for.
 
     Raises:
-        KeyError: If column is not present in df.
+        KeyError: If any column in columns is not present in df.
     """
-    if column not in df.columns:
+    missing = [column for column in columns if column not in df.columns]
+    if missing:
         available = ", ".join(map(str, df.columns))
         raise KeyError(
-            f"Column '{column}' was not found in the DataFrame. "
+            f"Column(s) {missing} were not found in the DataFrame. "
             f"Available columns: {available}."
         )
 
 
-def require_numeric_column(df: pd.DataFrame, column: str) -> pd.Series:
-    """Confirm a column is numeric and return it with missing values dropped.
+def require_numeric_columns(df: pd.DataFrame, columns: list[str]) -> None:
+    """Raise TypeError if any of columns is not numeric.
+
+    Args:
+        df: The DataFrame to check.
+        columns: The column names that must be numeric.
+
+    Raises:
+        TypeError: If any column in columns is not a numeric dtype.
+    """
+    for column in columns:
+        if not pd.api.types.is_numeric_dtype(df[column]):
+            raise TypeError(
+                f"Column '{column}' must be numeric, but it has dtype "
+                f"'{df[column].dtype}'. Convert it first, e.g. "
+                f"df['{column}'] = pd.to_numeric(df['{column}'], errors='coerce')."
+            )
+
+
+def coerce_datetime_column(df: pd.DataFrame, column: str) -> pd.Series:
+    """Parse a column to datetime, raising an error if it's unusable.
 
     Args:
         df: The DataFrame containing the column.
-        column: The name of the column to validate.
+        column: The name of the date column to parse.
 
     Returns:
-        The column as a pandas Series with NaN values removed.
+        The column converted to pandas datetime values. Entries that can't
+        be parsed become NaT (missing) rather than raising, so callers can
+        drop them the same way as any other missing value.
 
     Raises:
-        TypeError: If the column's dtype is not numeric.
-        ValueError: If no usable (non-missing) values remain.
-    """
-    series = df[column]
+        ValueError: If no value in the column can be parsed as a date.
 
-    # A column that is entirely missing values (e.g. all None) is reported
-    # as "no usable values" rather than "wrong dtype": pandas can't infer a
-    # real dtype for it, and either message would technically be accurate,
-    # but this one is more actionable.
-    cleaned = series.dropna()
+    Note:
+        Slash-separated dates (dd/mm/yyyy vs. mm/dd/yyyy) are ambiguous
+        when both the day and month are 12 or less. This function relies
+        on pandas to detect day-first formatting automatically, which it
+        does reliably as soon as any row in the column has a day above 12
+        -- true for essentially any real dataset spanning more than half a
+        month. A column where every single date is ambiguous (e.g. only
+        the first twelve days of a month) may be parsed as month-first
+        instead.
+    """
+    # Deliberately not passing dayfirst=True here: pandas already infers
+    # day-first vs. month-first correctly on its own as soon as any value
+    # in the column has a day >12 (which real multi-day datasets almost
+    # always do), for both slash-separated (dd/mm/yyyy) and ISO
+    # (yyyy-mm-dd) dates. Forcing dayfirst=True instead actively corrupts
+    # already-unambiguous ISO dates -- e.g. it turns "2018-01-07" into
+    # July 1st instead of January 7th, because pandas infers one date
+    # format from the first row and applies it to the whole column.
+    parsed = pd.to_datetime(df[column], errors="coerce")
+    if parsed.isna().all():
+        raise ValueError(
+            f"Column '{column}' has no usable date values. Expected a "
+            "column of dates or date-like strings (e.g. '2018-01-07' or "
+            "'07/01/2018')."
+        )
+    return parsed
+
+
+def select_complete_rows(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    """Drop rows where any of columns has a missing value.
+
+    Args:
+        df: The DataFrame to filter.
+        columns: The columns that must all be present (non-missing) in a
+            row for that row to be kept.
+
+    Returns:
+        A copy of df containing only rows with usable values in every
+        column listed in columns.
+
+    Raises:
+        ValueError: If no rows remain after dropping incomplete rows.
+    """
+    cleaned = df.dropna(subset=columns).copy()
     if cleaned.empty:
         raise ValueError(
-            f"Column '{column}' has no usable (non-missing) numeric values "
-            "to plot."
+            f"No usable (non-missing) rows remain across columns {columns}."
         )
-
-    if not pd.api.types.is_numeric_dtype(series):
-        raise TypeError(
-            f"Column '{column}' must be numeric to plot, but it has dtype "
-            f"'{series.dtype}'. Convert it first, e.g. "
-            f"df['{column}'] = pd.to_numeric(df['{column}'], errors='coerce')."
-        )
-
     return cleaned
-
-
-def select_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Select only numeric columns from a DataFrame and confirm there are enough.
-
-    Args:
-        df: The DataFrame to inspect.
-
-    Returns:
-        A DataFrame containing only the numeric columns of df that have at
-        least one usable (non-missing) value.
-
-    Raises:
-        ValueError: If fewer than two such numeric columns exist.
-    """
-    numeric_df = df.select_dtypes(include="number")
-    usable_columns = [col for col in numeric_df.columns if numeric_df[col].notna().any()]
-    numeric_df = numeric_df[usable_columns]
-
-    if numeric_df.shape[1] < 2:
-        raise ValueError(
-            "At least two numeric columns with usable data are required to "
-            f"compute a correlation heatmap, but only {numeric_df.shape[1]} "
-            "were found. Add more numeric columns or check for missing data."
-        )
-    return numeric_df
-
-
-def require_supported_correlation_method(method: str) -> None:
-    """Raise ValueError if method is not a supported correlation method.
-
-    Args:
-        method: The correlation method name to check.
-
-    Raises:
-        ValueError: If method is not one of 'pearson', 'spearman', or 'kendall'.
-    """
-    supported = ("pearson", "spearman", "kendall")
-    if method not in supported:
-        raise ValueError(
-            f"Unsupported correlation method '{method}'. "
-            f"Choose one of: {', '.join(supported)}."
-        )

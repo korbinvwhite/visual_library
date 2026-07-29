@@ -71,3 +71,25 @@ Supporting files:
 - **Verified:** Full test suite still passes (30/30); regenerated the example images to confirm output is visually unchanged; confirmed the returned figure is now pyplot-managed.
 - **Status:** Fixed locally, not yet committed/pushed.
 
+### 2026-07-29 — Pivoted to a new visual identity: bubble chart + circular calendar
+
+You pushed your own commits directly to `main` in between sessions: a revised `CLAUDE.md` (new project spec) and a new raw dataset file (`Agenda_BL_Rua_Carnaval_Rio-2018_Imprensa.csv`, a real 2018 Rio street-Carnival parade schedule) plus a `scratch.py` test file. The revised spec replaces the original two chart types entirely with two new ones:
+
+- **`bubble_chart()`** — a scatter plot where each point ("bubble") is one Carnival bloco: x/y position from two numeric columns, bubble size scaled from a third numeric column, and color from a categorical column (e.g. region), with an option to label the N largest bubbles.
+- **`circular_calendar()`** — a circular/polar plot where each event becomes one point placed around a ring based on its calendar date (angle), all at a fixed distance from the center, sized and colored the same way as the bubble chart, with month labels running around the outside like a clock face.
+
+**What was done:**
+- Removed the old `histogram()`/`correlation()` code, tests, and synthetic dataset entirely (the revised spec says v0.1.0 exposes *exactly* the two new functions).
+- Wrote `examples/prepare_dataset.py` to clean the real raw dataset: it's semicolon-separated (not comma-separated), uses Brazilian-style numbers (`"1.500"` means 1,500), has inconsistent capitalization in the region names (`"Zona norte 1"` vs `"Zona Norte 1"`), and uses day-first dates.
+- Rewrote `validation.py` for the new API: multi-column existence/numeric checks, a date-parsing helper, and a helper that drops rows missing any of several required columns at once.
+- Added a categorical color-mapping helper (`colors.categorical_color_map()`) and shared bubble-sizing/legend-building helpers (`styling.scale_marker_sizes()`, `styling.legend_handles_for_categories()`) so both chart functions share logic instead of duplicating it.
+- Wrote `bubble_chart.py` and `circular_calendar.py`, new tests for both, a new example script/notebook, and regenerated the two README example images from the real data.
+- Removed the `scipy` dependency (it was only needed for the old Kendall-correlation option, which no longer exists).
+- Updated `scratch.py` (a file you added yourself) to use the new functions instead of the removed ones, since it referenced a dataset file that no longer exists.
+
+**Bugs found and fixed along the way** (see `ISSUES.md` for the full write-up of each):
+- Cleaning the real dataset silently corrupted the founding-year column (`1972` became `19720`) because the raw file wasn't read as plain text first, so pandas guessed a numeric type before the cleaning code could handle the Brazilian number format itself.
+- Fixing the earlier day-first date bug (issue #4) had actually introduced a *new*, sneakier one: forcing `dayfirst=True` everywhere corrupted our own already-correct, unambiguous dates once they were saved in standard `yyyy-mm-dd` format, scattering Carnival events across the whole year in the circular calendar instead of clustering them in Jan/Feb where they belong. Fixed by letting pandas auto-detect the date format instead of forcing an assumption, and added a test specifically covering this date style so it can't silently regress again.
+
+**Status:** Both new functions implemented and validated locally (25/25 tests passing). Not yet committed/pushed — waiting for review and go-ahead.
+

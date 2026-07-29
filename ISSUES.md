@@ -61,3 +61,23 @@ A running list of problems hit while building and testing `carnaval_viz`, what c
 **Cause:** The chart functions were building figures using Matplotlib's low-level `Figure()` class directly rather than the more common `plt.subplots()`. That approach is sometimes preferred in library code because it avoids a memory-leak risk (Matplotlib's higher-level `pyplot` module keeps every figure it creates in memory until it's explicitly closed), but it also disconnects the figure from `pyplot`, so `.show()` has nothing to hook into.
 
 **Fix:** Switched both `histogram()` and `correlation()` to build their figure with `plt.subplots()` instead, restoring `.show()` support to match the documented usage. Left a note in the code that anyone generating a very large number of figures in a loop should call `plt.close(fig)` afterward to avoid the memory-buildup issue this design originally avoided.
+
+---
+
+### 7. Cleaning the real Rio Carnival dataset silently corrupted the founding year
+
+**What went wrong:** After writing a script to clean up the raw Rio Carnival blocos CSV (which uses Brazilian-style numbers like `"1.500"` meaning 1,500), the cleaned `year_founded` column ended up with nonsense values like `19720` instead of `1972`.
+
+**Cause:** The cleaning script read the raw file without forcing every column to be read as plain text. Because every value in the `year_founded` column happened to *look* numeric, pandas silently converted it to a decimal-number (`float`) column while loading the file — turning `"1972"` into `1972.0`. When the cleaning step later converted that back to text to strip out the Brazilian thousands-separator dots, `1972.0` became the text `"1972.0"`, and stripping the dot out of *that* produced `"19720"` — the decimal point from the automatic float conversion got mistaken for a thousands separator.
+
+**Fix:** Read the raw CSV with every column forced to plain text (`dtype=str`) from the start, so pandas never silently guesses a numeric type before the cleaning code gets a chance to interpret the Brazilian number format correctly itself.
+
+---
+
+### 8. Fixing one date-format bug accidentally introduced a worse one
+
+**What went wrong:** After building `circular_calendar()`, real event dates were plotted spread evenly across the whole year instead of clustered in Carnival season (January/February) as they should be. Investigating traced it back to the shared date-parsing helper: it had been set to always assume day-first dates (`dayfirst=True`) to correctly handle Brazilian-style `dd/mm/yyyy` dates elsewhere in the project (see issue #4). But applied to our own *already-cleaned* dataset — which stores dates in the unambiguous `yyyy-mm-dd` (ISO) format — that same setting silently corrupted them (e.g. turning January 7th into July 1st) instead of leaving them alone.
+
+**Cause:** Forcing `dayfirst=True` isn't a safe blanket setting: pandas uses it to help *guess* a date format from the first few rows, then applies that one guess to the entire column. For an ISO-formatted column this guess overrides what should be an unambiguous, already-correct format, actively making it wrong.
+
+**Fix:** Removed the forced `dayfirst=True` entirely from the shared parser and let pandas auto-detect the format instead — it reliably figures out day-first vs. month-first on its own as soon as it sees any date in the column with a day above 12 (true of nearly any real multi-day dataset), and it never touches already-unambiguous ISO dates. Added a test covering ISO-format dates specifically, alongside the existing Brazilian-format test, so this class of regression gets caught automatically going forward.

@@ -2,12 +2,21 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import carnaval_viz as viz
 
-df = pd.read_csv("examples/brazilian_music_sample.csv")
+df = pd.read_csv("examples/rio_carnival_blocos.csv")
 
-# Histogram
-hist_fig = viz.histogram(df, "danceability")
+# Bubble chart
+bubble_fig = viz.bubble_chart(
+    df,
+    x="year_founded",
+    y="estimated_audience",
+    size="estimated_audience",
+    color="region",
+    annotate_top=3,
+)
 
-# Correlation heatmap
-corr_fig = viz.correlation(df)
+# Circular calendar
+calendar_fig = viz.circular_calendar(
+    df, date="event_date", size="estimated_audience", color="region",
+)
 
 plt.show()  # keeps both windows open until you close them

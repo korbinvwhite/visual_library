@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "carnaval_viz"
 version = "0.1.0"
-description = "A lightweight, Brazil-inspired data visualization library built on pandas and Matplotlib."
+description = "A Rio Carnival-inspired data visualization library built on pandas and Matplotlib."
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
@@ -27,7 +27,6 @@ dependencies = [
     "pandas>=1.5",
     "matplotlib>=3.6",
     "numpy>=1.23",
-    "scipy>=1.9",
 ]
 
 [project.optional-dependencies]
