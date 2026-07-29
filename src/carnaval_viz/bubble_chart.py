@@ -100,6 +100,7 @@ def bubble_chart(
 
         if yscale == "log":
             ax.set_yscale("log")
+        styling.use_human_readable_axis(ax.yaxis)
 
         if annotate_top > 0:
             top_rows = working.nlargest(annotate_top, size)

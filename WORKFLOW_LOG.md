@@ -117,3 +117,11 @@ Also updated `CLAUDE.md` itself to reflect every one of these approved changes, 
 
 **Status:** Both charts rebuilt and re-validated (all tests passing). Not yet committed/pushed — waiting for review and go-ahead.
 
+### 2026-07-29 — Two readability tweaks
+
+You asked for two small usability fixes:
+- The calendar's radial time labels were in 24-hour format (e.g. "16:00", "21:00"); switched to ordinary 12-hour clock format ("4:00 PM", "9:00 PM") since that's how most people read a clock.
+- The bubble chart's log-scaled y-axis was showing scientific notation (e.g. "10^6"), which most people don't translate to "1 million" instantly; added a shared formatter (`styling.use_human_readable_axis()`) that renders tick labels as "100", "1K", "10K", "100K", "1M" instead.
+
+Both are small, self-contained changes -- no spec conflicts, no new bugs. Verified visually against the regenerated example images and re-ran the full test suite (33/33 passing).
+

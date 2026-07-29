@@ -171,7 +171,9 @@ def _weeks_before_ticks(min_date, max_date) -> tuple[list[float], list[str]]:
 
 
 def _format_hour(hour: float) -> str:
-    """Format a fractional hour (e.g. 16.5) as a clock time string ("16:30")."""
-    hours = int(hour)
-    minutes = int(round((hour - hours) * 60))
-    return f"{hours:02d}:{minutes:02d}"
+    """Format a fractional 24-hour value (e.g. 16.5) as a 12-hour clock string ("4:30 PM")."""
+    hours_24 = int(hour) % 24
+    minutes = int(round((hour - int(hour)) * 60))
+    period = "AM" if hours_24 < 12 else "PM"
+    hours_12 = hours_24 % 12 or 12
+    return f"{hours_12}:{minutes:02d} {period}"

@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from matplotlib.lines import Line2D
+from matplotlib.ticker import FuncFormatter
 
 from . import colors
 
@@ -75,6 +76,29 @@ def carnaval_style():
     """
     with plt.rc_context(rc=_STYLE_RC):
         yield
+
+
+def _human_readable_number(value: float, _pos=None) -> str:
+    """Format a number using K/M suffixes (e.g. 1_500_000 -> "1.5M") instead
+    of raw digits or scientific notation (e.g. 1e6) -- most people don't
+    read "10^6" as quickly as "1M" at a glance."""
+    magnitude = abs(value)
+    if magnitude >= 1_000_000:
+        formatted = f"{value / 1_000_000:g}M"
+    elif magnitude >= 1_000:
+        formatted = f"{value / 1_000:g}K"
+    else:
+        formatted = f"{value:g}"
+    return formatted
+
+
+def use_human_readable_axis(axis) -> None:
+    """Format an axis's tick labels with K/M suffixes instead of raw numbers.
+
+    Args:
+        axis: A Matplotlib Axis object, e.g. `ax.yaxis` or `ax.xaxis`.
+    """
+    axis.set_major_formatter(FuncFormatter(_human_readable_number))
 
 
 def strip_spines(ax):
