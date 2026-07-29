@@ -134,3 +134,14 @@ Three related styling requests, all in `colors.py`/`styling.py` (the shared styl
 
 One interesting wrinkle worth noting for later: for the Carnival calendar specifically, Matplotlib's polar-plot background patch is circular, not a full rectangle -- so the white plotting area there renders as a white disk (like a clock face) rather than a white square, which arguably reads better for that chart than a plain rectangle would have. Verified both example images visually and re-ran the full test suite (33/33 passing) before checking in.
 
+### 2026-07-29 — Simpler function calls via default column names
+
+You pushed a change yourself this time: removed `scratch.py` (no longer needed now that `examples/rio_carnival_demo.py` covers manual testing), and gave `bubble_chart()`/`carnival_calendar()` default values for their column-name arguments (`x`, `y`, `size`, `color`, `date`, `time`), matching the Rio Carnival Blocos dataset. That means `viz.bubble_chart(df)` and `viz.carnival_calendar(df)` now work with no other arguments for the common case -- you only need to pass column names explicitly when using a different dataset.
+
+I updated everything downstream to match:
+- `examples/rio_carnival_demo.py` now calls both functions with just `df`, and calls `plt.show()` at the end so the two chart windows stay open until closed (in addition to still saving the README's example images to `assets/`).
+- The example notebook and README quick-start were simplified the same way.
+- `CLAUDE.md` (the living spec) was updated to show the new default values, since defaults are a real part of the public API now, not just an internal implementation detail.
+
+Verified the simplified calls actually work end-to-end against the real dataset, and re-ran the full test suite (33/33 passing, no regressions from the new defaults).
+

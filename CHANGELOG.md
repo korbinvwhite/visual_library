@@ -18,3 +18,5 @@ Initial release.
 - `bubble_chart()`: switched to square-root bubble scaling and a log-scaled y-axis (both configurable) to prevent a single large outlier from crushing every other value; legend now orders categories by total size instead of alphabetically; improved default title; y-axis tick labels now show "100", "1K", "1M" instead of scientific notation like "10^6".
 - `carnival_calendar()`: radial tick labels now show ordinary 12-hour clock times (e.g. "4:00 PM") instead of 24-hour time.
 - Shared style: warm cream figure background (`#FAF7F2`), muted-gold chart titles (`#B8860B`), with the plotting area itself staying white on top of the cream background.
+- `bubble_chart()` and `carnival_calendar()` now default their column-name arguments to the Rio Carnival Blocos dataset's columns (e.g. `viz.bubble_chart(df)` works with no other arguments); `annotate_top` now defaults to 3.
+- `examples/rio_carnival_demo.py` now uses the simplified calls and calls `plt.show()` so both charts stay open in windows until closed, in addition to saving the README's example images.

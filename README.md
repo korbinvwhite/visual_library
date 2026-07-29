@@ -18,25 +18,18 @@ pip install -e .
 ## Quick start
 
 ```python
+import matplotlib.pyplot as plt
 import pandas as pd
 import carnaval_viz as viz
 
 df = pd.read_csv("examples/rio_carnival_blocos.csv")
 
-bubble_fig = viz.bubble_chart(
-    df,
-    x="year_founded",
-    y="estimated_audience",
-    size="estimated_audience",
-    color="region",
-)
-bubble_fig.show()
+# Both functions default to this dataset's column names, so no column
+# arguments are needed for the common case.
+bubble_fig = viz.bubble_chart(df)
+calendar_fig = viz.carnival_calendar(df)
 
-calendar_fig = viz.carnival_calendar(
-    df, date="event_date", time="gathering_time",
-    size="estimated_audience", color="region",
-)
-calendar_fig.show()
+plt.show()  # keeps both windows open until you close them
 ```
 
 Both functions return a Matplotlib `Figure` (rather than displaying anything automatically), so you can save them:
@@ -48,13 +41,15 @@ calendar_fig.savefig("carnival_calendar.png", dpi=300, bbox_inches="tight")
 
 ## API
 
-### `viz.bubble_chart(df, x, y, size, color, *, title=None, figsize=(10, 8), alpha=0.7, annotate_top=0, yscale="log")`
+### `viz.bubble_chart(df, x="year_founded", y="estimated_audience", size="estimated_audience", color="region", *, title=None, figsize=(10, 8), alpha=0.7, annotate_top=3, yscale="log")`
 
-Plots one bubble per row: `x`/`y` position, bubble size from `size` (square-root scaled by default, so one extreme outlier doesn't crush every other bubble to invisible), and color from the category in `color` (legend ordered by total `size`, largest first). The y-axis defaults to a log scale (`yscale="log"`) so values aren't crushed near zero by a large outlier — pass `yscale="linear"` if your y-column can be zero or negative. Missing values are dropped automatically. `annotate_top` labels the N largest bubbles (by `size`) with their DataFrame index. Raises `TypeError`/`KeyError`/`ValueError` with a clear message for invalid input (not a DataFrame, missing/non-numeric/negative columns, empty dataset, or no usable rows).
+Plots one bubble per row: `x`/`y` position, bubble size from `size` (square-root scaled by default, so one extreme outlier doesn't crush every other bubble to invisible), and color from the category in `color` (legend ordered by total `size`, largest first). The y-axis defaults to a log scale (`yscale="log"`) so values aren't crushed near zero by a large outlier — pass `yscale="linear"` if your y-column can be zero or negative. Missing values are dropped automatically. `annotate_top` labels the N largest bubbles (by `size`) with their DataFrame index — pass `0` to disable. Raises `TypeError`/`KeyError`/`ValueError` with a clear message for invalid input (not a DataFrame, missing/non-numeric/negative columns, empty dataset, or no usable rows).
 
-### `viz.carnival_calendar(df, date, time, size, color, *, title=None, figsize=(10, 10))`
+### `viz.carnival_calendar(df, date="event_date", time="gathering_time", size="estimated_audience", color="region", *, title=None, figsize=(10, 10))`
 
 Plots one point per row around a calendar wheel scoped to the season the data actually spans (not a full, mostly-empty year): angular position from `date`, radius from `time` (event clock time — earlier events sit closer to the center), point size from `size`, and color from the category in `color`. Tick labels count down in weeks to the final event date (e.g. "3 Weeks Before", "Event Day").
+
+Both functions' default column names match `examples/rio_carnival_blocos.csv`. Pass your own column names as keyword arguments (e.g. `viz.bubble_chart(df, x="my_column")`) to use a different dataset.
 
 ## Dataset
 

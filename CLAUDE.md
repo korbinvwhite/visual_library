@@ -95,17 +95,21 @@ Function:
 
 bubble_chart(
     df,
-    x,
-    y,
-    size,
-    color,
+    x="year_founded",
+    y="estimated_audience",
+    size="estimated_audience",
+    color="region",
     *,
     title=None,
     figsize=(10,8),
     alpha=0.7,
-    annotate_top=0,
+    annotate_top=3,
     yscale="log"
 )
+
+(x/y/size/color default to the Rio Carnival Blocos dataset's column names,
+so viz.bubble_chart(df) works with no other arguments -- pass your own
+column names to use a different dataset.)
 
 Purpose
 
@@ -164,14 +168,18 @@ Function:
 
 carnival_calendar(
     df,
-    date,
-    time,
-    size,
-    color,
+    date="event_date",
+    time="gathering_time",
+    size="estimated_audience",
+    color="region",
     *,
     title=None,
     figsize=(10,10)
 )
+
+(date/time/size/color default to the Rio Carnival Blocos dataset's column
+names, so viz.carnival_calendar(df) works with no other arguments -- pass
+your own column names to use a different dataset.)
 
 Purpose
 
