@@ -23,10 +23,10 @@ _SPAN_RADIANS = 2 * np.pi - _GAP_RADIANS
 
 def carnival_calendar(
     df: pd.DataFrame,
-    date: str,
-    time: str,
-    size: str,
-    color: str,
+    date: str = "event_date",
+    time: str ="gathering_time",
+    size: str = "estimated_audience",
+    color: str = "region",
     *,
     title: str | None = None,
     figsize: tuple[float, float] = (10, 10),

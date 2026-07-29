@@ -9,15 +9,15 @@ from . import colors, styling, validation
 
 def bubble_chart(
     df: pd.DataFrame,
-    x: str,
-    y: str,
-    size: str,
-    color: str,
+    x: str = "year_founded",
+    y: str = "estimated_audience",
+    size: str ="estimated_audience",
+    color: str ="region",
     *,
     title: str | None = None,
     figsize: tuple[float, float] = (10, 8),
     alpha: float = 0.7,
-    annotate_top: int = 0,
+    annotate_top: int = 3,
     yscale: str = "log",
 ) -> Figure:
     """Create a publication-quality bubble chart.
