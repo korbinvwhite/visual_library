@@ -64,6 +64,18 @@ def test_coerce_datetime_column_rejects_all_unparseable():
         validation.coerce_datetime_column(df, "date")
 
 
+def test_coerce_time_of_day_column_parses_valid_times():
+    df = pd.DataFrame({"time": ["16:00:00", "18:30:00"]})
+    parsed = validation.coerce_time_of_day_column(df, "time")
+    assert list(parsed) == [16.0, 18.5]
+
+
+def test_coerce_time_of_day_column_rejects_all_unparseable():
+    df = pd.DataFrame({"time": ["not a time", "also not a time"]})
+    with pytest.raises(ValueError):
+        validation.coerce_time_of_day_column(df, "time")
+
+
 def test_select_complete_rows_drops_incomplete_rows():
     df = pd.DataFrame({"a": [1, None, 3], "b": [1, 2, None]})
     result = validation.select_complete_rows(df, ["a", "b"])

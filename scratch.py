@@ -14,9 +14,10 @@ bubble_fig = viz.bubble_chart(
     annotate_top=3,
 )
 
-# Circular calendar
-calendar_fig = viz.circular_calendar(
-    df, date="event_date", size="estimated_audience", color="region",
+# Carnival calendar
+calendar_fig = viz.carnival_calendar(
+    df, date="event_date", time="gathering_time",
+    size="estimated_audience", color="region",
 )
 
 plt.show()  # keeps both windows open until you close them

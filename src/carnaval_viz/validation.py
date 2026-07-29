@@ -68,6 +68,26 @@ def require_numeric_columns(df: pd.DataFrame, columns: list[str]) -> None:
             )
 
 
+def require_non_negative_column(df: pd.DataFrame, column: str) -> None:
+    """Raise ValueError if any usable value in a column is negative.
+
+    Used for columns that control marker size (e.g. bubble area), which
+    can't meaningfully be negative.
+
+    Args:
+        df: The DataFrame containing the column.
+        column: The name of the column to check.
+
+    Raises:
+        ValueError: If any non-missing value in the column is negative.
+    """
+    if (df[column].dropna() < 0).any():
+        raise ValueError(
+            f"Column '{column}' must contain only non-negative values, "
+            "since it controls marker size."
+        )
+
+
 def coerce_datetime_column(df: pd.DataFrame, column: str) -> pd.Series:
     """Parse a column to datetime, raising an error if it's unusable.
 
@@ -109,6 +129,32 @@ def coerce_datetime_column(df: pd.DataFrame, column: str) -> pd.Series:
             "'07/01/2018')."
         )
     return parsed
+
+
+def coerce_time_of_day_column(df: pd.DataFrame, column: str) -> pd.Series:
+    """Parse a column of clock times into numeric hours (e.g. 16:30 -> 16.5).
+
+    Args:
+        df: The DataFrame containing the column.
+        column: The name of the time-of-day column to parse (e.g. values
+            like "16:00:00" or "16:00").
+
+    Returns:
+        A Series of floats representing hour-of-day (0.0-24.0). Entries
+        that can't be parsed become NaN rather than raising, so callers
+        can drop them the same way as any other missing value.
+
+    Raises:
+        ValueError: If no value in the column can be parsed as a time.
+    """
+    parsed = pd.to_datetime(df[column], errors="coerce", format="mixed")
+    hours = parsed.dt.hour + parsed.dt.minute / 60 + parsed.dt.second / 3600
+    if hours.isna().all():
+        raise ValueError(
+            f"Column '{column}' has no usable time-of-day values. Expected "
+            "a column of clock times (e.g. '16:00:00' or '16:00')."
+        )
+    return hours
 
 
 def select_complete_rows(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:

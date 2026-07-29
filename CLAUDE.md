@@ -80,7 +80,10 @@ Version 0.1.0 exposes exactly two public functions:
 
 viz.bubble_chart()
 
-viz.circular_calendar()
+viz.carnival_calendar()
+
+(Renamed from circular_calendar() per the 2026-07-29 design review --
+carnival_calendar() better communicates the chart's purpose.)
 
 ------------------------------------------------------------
 
@@ -100,7 +103,8 @@ bubble_chart(
     title=None,
     figsize=(10,8),
     alpha=0.7,
-    annotate_top=0
+    annotate_top=0,
+    yscale="log"
 )
 
 Purpose
@@ -124,28 +128,44 @@ Requirements
 - Validate DataFrame
 - Validate all required columns
 - Ignore missing values
-- Scale bubble sizes automatically
+- Scale bubble sizes automatically (square-root scaled by default, so one
+  extreme outlier doesn't crush every other bubble to invisible; also
+  supports "log" and "linear")
+- Bubble size (the "size" column) must be non-negative
+- y-axis defaults to a log scale (yscale="log") so values aren't crushed
+  near zero by a single large outlier; requires positive y values, or pass
+  yscale="linear"
 - Apply transparency
-- Add legend
+- Add legend, with regions ordered by total audience (largest first)
+  rather than alphabetically
 - Use Brazil-inspired color palette
 - Clean typography
 - Remove unnecessary borders
 - Light grid
-- Optional annotation of largest events
+- Optional annotation of the N largest events (via annotate_top), labeled
+  with the DataFrame's index
+- Descriptive default title (e.g. "Carnival Blocos: Estimated Audience vs.
+  Year Founded")
 - Return the Matplotlib Figure
 - Never call plt.show()
+
+(Revised per the 2026-07-29 design review: square-root bubble scaling, log
+y-axis, audience-ordered legend, and a more descriptive default title.)
 
 ------------------------------------------------------------
 
 VISUALIZATION 2
 
-Circular Calendar
+Carnival Calendar
+
+(Renamed from "Circular Calendar" per the 2026-07-29 design review.)
 
 Function:
 
-circular_calendar(
+carnival_calendar(
     df,
     date,
+    time,
     size,
     color,
     *,
@@ -155,9 +175,8 @@ circular_calendar(
 
 Purpose
 
-Display Carnival events around a circular calendar.
-
-The circular layout represents the Carnival season.
+Display Carnival events around a calendar wheel scoped to the actual
+event season (not a full, mostly-empty year).
 
 Each event becomes one point.
 
@@ -167,19 +186,24 @@ Angle
 
 ↓
 
-Event Date
+Event Date, scaled across the season's own date range (not the full
+calendar year), with a small gap left between the first and last day so
+the two ends of the season don't visually collide at the same angle
 
 Radius
 
 ↓
 
-Fixed
+Event time of day (the "time" column, e.g. gathering time) -- earlier
+events sit closer to the center, later ones nearer the rim
 
 Bubble Size
 
 ↓
 
-Estimated Audience
+Estimated Audience (square-root scaled, same approach as the bubble
+chart, with a smaller max size and lower opacity than the bubble chart to
+reduce overlap where many events cluster on the same few dates)
 
 Bubble Color
 
@@ -192,13 +216,20 @@ Requirements
 - Validate DataFrame
 - Validate columns
 - Convert dates automatically
-- Convert dates into angular positions
+- Convert times automatically (e.g. "16:00:00") into hour-of-day values
+- Convert dates into angular positions, scoped to the season's own date
+  range rather than the full year, so a short season isn't lost in mostly
+  empty space
+- Convert times into radial positions
 - Scale bubbles automatically
+- Bubble size (the "size" column) must be non-negative
 - Brazil-inspired palette
 - Region legend
-- Month labels around the outside
-- Radial grid
+- Tick labels counting down in weeks to the final event date (e.g. "3
+  Weeks Before", "Event Day") instead of full-year month labels
+- Radial grid, labeled with the corresponding time of day
 - Clean typography
+- Descriptive default title (e.g. "Rio Carnival Parade Calendar")
 - Return the Matplotlib Figure
 - Never call plt.show()
 
@@ -267,7 +298,7 @@ src/
     carnaval_viz/
         __init__.py
         bubble_chart.py
-        circular_calendar.py
+        carnival_calendar.py
         styling.py
         colors.py
         validation.py
@@ -342,10 +373,11 @@ Test Bubble Chart
 - Missing columns
 - Input DataFrame unchanged
 
-Test Circular Calendar
+Test Carnival Calendar
 
 - Creates Figure
 - Correct date conversion
+- Correct time-of-day (radius) conversion
 - Handles missing values
 - Invalid dates
 - Missing columns
@@ -406,9 +438,10 @@ viz.bubble_chart(
     color="Region"
 )
 
-viz.circular_calendar(
+viz.carnival_calendar(
     df,
     date="Event Date",
+    time="Gathering Time",
     size="Estimated Audience",
     color="Region"
 )
@@ -431,13 +464,15 @@ Color = Region
 
 2.
 
-Circular Calendar
+Carnival Calendar
 
-Every Carnival event plotted around a circular calendar
+Every Carnival event plotted around a season-scoped calendar wheel
 
 Bubble Size = Audience
 
 Color = Region
+
+Radius = Event Time of Day
 
 ------------------------------------------------------------
 
@@ -484,7 +519,7 @@ The project is complete when:
 - Package installs successfully
 - Both public functions work
 - Bubble Chart generates correctly
-- Circular Calendar generates correctly
+- Carnival Calendar generates correctly
 - Shared styling is implemented
 - Validation is complete
 - Tests pass
@@ -509,7 +544,7 @@ Provide:
 - Example notebook
 - Example script
 - Bubble Chart screenshot
-- Circular Calendar screenshot
+- Carnival Calendar screenshot
 - Installation instructions
 - Build instructions
 - Test instructions

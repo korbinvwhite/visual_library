@@ -93,3 +93,27 @@ You pushed your own commits directly to `main` in between sessions: a revised `C
 
 **Status:** Both new functions implemented and validated locally (25/25 tests passing). Not yet committed/pushed — waiting for review and go-ahead.
 
+### 2026-07-29 — Applied a design review, redesigned the Carnival calendar
+
+You pushed a review document, `Carnival_Visualization_Review_Notes.txt`, with specific critique of both charts. Two of its suggestions (making the calendar's radius meaningful instead of fixed, and renaming `circular_calendar()`) conflicted with the locked `CLAUDE.md` spec, so I asked which way you wanted to go before touching either — you chose to make both changes, with radius encoding event start time and the function renamed to `carnival_calendar()`.
+
+**Bubble chart changes:**
+- Bubble size now uses square-root scaling by default (configurable to `"log"` or `"linear"`) instead of linear, so one bloco with a 1.5-million-person audience no longer crushes every other bubble down to a barely-visible dot.
+- Y-axis now defaults to a log scale (`yscale="log"`, with a `"linear"` opt-out) for the same reason — values were previously compressed near zero by that same outlier.
+- Legend now orders regions by total audience (largest first) instead of alphabetically.
+- More descriptive default title.
+
+**Calendar changes (renamed `circular_calendar()` → `carnival_calendar()`):**
+- Angle now scales across only the season's actual date range (e.g. the ~7 weeks the real dataset spans), instead of a full 365-day year — the original version left most of the circle empty since Carnival data only covers a couple of months.
+- Tick labels now count down in weeks to the final event date (e.g. "3 Weeks Before", "Event Day") instead of showing all 12 month names.
+- Radius is no longer fixed — it now encodes each event's start time of day (closer to center = earlier in the day), added as a new required `time` parameter. This was chosen over the review's other two radius options (audience, weeks-before-Carnival) specifically because those would have duplicated information already shown by bubble size and angle, respectively.
+- Reduced maximum bubble size and increased transparency to cut down on overlap where many events cluster on the same few dates.
+
+**Bugs found and fixed along the way** (full write-ups in `ISSUES.md` #9-10):
+- The new square-root bubble scaling silently produced invalid (`NaN`) sizes for negative values instead of erroring, since a negative number has no real square root. Added explicit validation rejecting negative "size" values before any math runs, since a negative magnitude never makes sense for a bubble's size anyway.
+- Fitting the season into the full 360-degree circle caused a bug where the season's first and last day landed at the identical angle (like a clock's "12" marking both an end and a start) since a date range isn't actually cyclic. Fixed by reserving a small angular gap so the two ends of the season stay visually separate.
+
+Also updated `CLAUDE.md` itself to reflect every one of these approved changes, since it's the project's living source-of-truth spec, not a historical record.
+
+**Status:** Both charts rebuilt and re-validated (all tests passing). Not yet committed/pushed — waiting for review and go-ahead.
+

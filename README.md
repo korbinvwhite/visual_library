@@ -1,10 +1,10 @@
 # carnaval_viz
 
-A lightweight, Rio Carnival-inspired Python visualization library. It creates two polished, presentation-ready charts — a bubble chart and a circular calendar — with minimal configuration, built on top of pandas and Matplotlib.
+A lightweight, Rio Carnival-inspired Python visualization library. It creates two polished, presentation-ready charts — a bubble chart and a Carnival calendar — with minimal configuration, built on top of pandas and Matplotlib.
 
 <p align="center">
   <img src="assets/bubble_chart_example.png" width="48%" alt="Example bubble chart" />
-  <img src="assets/circular_calendar_example.png" width="48%" alt="Example circular calendar" />
+  <img src="assets/carnival_calendar_example.png" width="48%" alt="Example Carnival calendar" />
 </p>
 
 ## Installation
@@ -32,8 +32,9 @@ bubble_fig = viz.bubble_chart(
 )
 bubble_fig.show()
 
-calendar_fig = viz.circular_calendar(
-    df, date="event_date", size="estimated_audience", color="region",
+calendar_fig = viz.carnival_calendar(
+    df, date="event_date", time="gathering_time",
+    size="estimated_audience", color="region",
 )
 calendar_fig.show()
 ```
@@ -42,18 +43,18 @@ Both functions return a Matplotlib `Figure` (rather than displaying anything aut
 
 ```python
 bubble_fig.savefig("bubble_chart.png", dpi=300, bbox_inches="tight")
-calendar_fig.savefig("circular_calendar.png", dpi=300, bbox_inches="tight")
+calendar_fig.savefig("carnival_calendar.png", dpi=300, bbox_inches="tight")
 ```
 
 ## API
 
-### `viz.bubble_chart(df, x, y, size, color, *, title=None, figsize=(10, 8), alpha=0.7, annotate_top=0)`
+### `viz.bubble_chart(df, x, y, size, color, *, title=None, figsize=(10, 8), alpha=0.7, annotate_top=0, yscale="log")`
 
-Plots one bubble per row: `x`/`y` position, bubble size from `size` (scaled automatically), and color from the category in `color`. Missing values are dropped automatically. `annotate_top` labels the N largest bubbles (by `size`) with their DataFrame index. Raises `TypeError`/`KeyError`/`ValueError` with a clear message for invalid input (not a DataFrame, missing/non-numeric columns, empty dataset, or no usable rows).
+Plots one bubble per row: `x`/`y` position, bubble size from `size` (square-root scaled by default, so one extreme outlier doesn't crush every other bubble to invisible), and color from the category in `color` (legend ordered by total `size`, largest first). The y-axis defaults to a log scale (`yscale="log"`) so values aren't crushed near zero by a large outlier — pass `yscale="linear"` if your y-column can be zero or negative. Missing values are dropped automatically. `annotate_top` labels the N largest bubbles (by `size`) with their DataFrame index. Raises `TypeError`/`KeyError`/`ValueError` with a clear message for invalid input (not a DataFrame, missing/non-numeric/negative columns, empty dataset, or no usable rows).
 
-### `viz.circular_calendar(df, date, size, color, *, title=None, figsize=(10, 10))`
+### `viz.carnival_calendar(df, date, time, size, color, *, title=None, figsize=(10, 10))`
 
-Plots one point per row around a circular (polar) calendar: angular position from `date` (parsed automatically and mapped onto the calendar year), point size from `size`, and color from the category in `color`. All points sit at the same distance from the center — the circle represents *when* in the year something happens, not a magnitude.
+Plots one point per row around a calendar wheel scoped to the season the data actually spans (not a full, mostly-empty year): angular position from `date`, radius from `time` (event clock time — earlier events sit closer to the center), point size from `size`, and color from the category in `color`. Tick labels count down in weeks to the final event date (e.g. "3 Weeks Before", "Event Day").
 
 ## Dataset
 

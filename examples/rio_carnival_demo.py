@@ -5,7 +5,7 @@ Run with:
 
 This regenerates the two example images stored in assets/ and shown in the
 README: a bubble chart of blocos by founding year and audience size, and a
-circular calendar of every event across the Carnival season.
+Carnival calendar of every event across the season.
 """
 
 from pathlib import Path
@@ -29,20 +29,21 @@ def main() -> None:
         y="estimated_audience",
         size="estimated_audience",
         color="region",
-        annotate_top=3,
+        annotate_top=5,
     )
     bubble_fig.savefig(
         ASSETS_DIR / "bubble_chart_example.png", dpi=300, bbox_inches="tight"
     )
 
-    calendar_fig = viz.circular_calendar(
+    calendar_fig = viz.carnival_calendar(
         df,
         date="event_date",
+        time="gathering_time",
         size="estimated_audience",
         color="region",
     )
     calendar_fig.savefig(
-        ASSETS_DIR / "circular_calendar_example.png", dpi=300, bbox_inches="tight"
+        ASSETS_DIR / "carnival_calendar_example.png", dpi=300, bbox_inches="tight"
     )
 
     print(f"Saved example images to {ASSETS_DIR}")

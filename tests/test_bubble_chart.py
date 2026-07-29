@@ -70,6 +70,55 @@ def test_bubble_chart_annotate_top(blocos_df):
     assert len(fig.axes[0].texts) == 3
 
 
+def test_bubble_chart_log_yscale_by_default(blocos_df):
+    fig = viz.bubble_chart(
+        blocos_df, x="year_founded", y="estimated_audience",
+        size="estimated_audience", color="region",
+    )
+    assert fig.axes[0].get_yscale() == "log"
+
+
+def test_bubble_chart_rejects_log_yscale_with_nonpositive_values(blocos_df):
+    df = blocos_df.copy()
+    df.loc[0, "estimated_audience"] = -5
+    with pytest.raises(ValueError):
+        viz.bubble_chart(
+            df, x="year_founded", y="estimated_audience",
+            size="estimated_audience", color="region",
+        )
+
+
+def test_bubble_chart_linear_yscale_allows_nonpositive_values(blocos_df):
+    # Uses "year_founded" (always positive) as the size column here so this
+    # test isolates the yscale behavior, rather than also triggering the
+    # separate negative-size-value validation below.
+    df = blocos_df.copy()
+    df.loc[0, "estimated_audience"] = -5
+    fig = viz.bubble_chart(
+        df, x="year_founded", y="estimated_audience",
+        size="year_founded", color="region", yscale="linear",
+    )
+    assert fig.axes[0].get_yscale() == "linear"
+
+
+def test_bubble_chart_rejects_negative_size_values(blocos_df):
+    df = blocos_df.copy()
+    df.loc[0, "estimated_audience"] = -5
+    with pytest.raises(ValueError):
+        viz.bubble_chart(
+            df, x="year_founded", y="year_founded",
+            size="estimated_audience", color="region", yscale="linear",
+        )
+
+
+def test_bubble_chart_rejects_unsupported_yscale(blocos_df):
+    with pytest.raises(ValueError):
+        viz.bubble_chart(
+            blocos_df, x="year_founded", y="estimated_audience",
+            size="estimated_audience", color="region", yscale="not_a_scale",
+        )
+
+
 def test_bubble_chart_does_not_modify_input(blocos_df):
     original = blocos_df.copy(deep=True)
     viz.bubble_chart(

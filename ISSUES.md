@@ -81,3 +81,23 @@ A running list of problems hit while building and testing `carnaval_viz`, what c
 **Cause:** Forcing `dayfirst=True` isn't a safe blanket setting: pandas uses it to help *guess* a date format from the first few rows, then applies that one guess to the entire column. For an ISO-formatted column this guess overrides what should be an unambiguous, already-correct format, actively making it wrong.
 
 **Fix:** Removed the forced `dayfirst=True` entirely from the shared parser and let pandas auto-detect the format instead — it reliably figures out day-first vs. month-first on its own as soon as it sees any date in the column with a day above 12 (true of nearly any real multi-day dataset), and it never touches already-unambiguous ISO dates. Added a test covering ISO-format dates specifically, alongside the existing Brazilian-format test, so this class of regression gets caught automatically going forward.
+
+---
+
+### 9. Square-root bubble scaling silently broke on negative values
+
+**What went wrong:** After adding square-root scaling to make bubble sizes read better (per the design review), a test that inserted a negative test value into the audience column produced a Python warning (`invalid value encountered in sqrt`) instead of a clear error, and would have silently rendered that bubble with a nonsensical, missing size.
+
+**Cause:** The square root of a negative number isn't a real number, so NumPy returns `NaN` (not-a-number) instead of raising an error. Since a bubble's size represents a magnitude (like an audience count), a negative value doesn't make sense for it in the first place -- but nothing was checking for that before the math ran.
+
+**Fix:** Added an explicit check that rejects negative values in the "size" column with a clear `ValueError` before any scaling happens, for both `bubble_chart()` and `carnival_calendar()`, instead of letting the math fail silently.
+
+---
+
+### 10. The Carnival calendar's season start and end overlapped at the same spot
+
+**What went wrong:** After reworking the calendar to focus on just the Carnival season (instead of a full, mostly-empty year), the tick labels for "6 Weeks Before" and "Event Day" rendered on top of each other at the top of the circle, unreadable.
+
+**Cause:** The season's date range was mapped onto the *entire* 360-degree circle, so the first day and the last day of the season landed at the exact same angle (0 degrees = 360 degrees, the same spot) -- the same way a clock's "12" marks both an ending and a beginning. But a date range isn't cyclic like a repeating clock face or calendar year; it has two genuinely different ends that shouldn't visually coincide.
+
+**Fix:** Reserved a small gap (20 degrees) at the top of the circle and mapped the season across the remaining ~340 degrees instead of the full circle, so the season's start and end stay visually distinct.
