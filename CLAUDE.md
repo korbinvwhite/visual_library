@@ -1,17 +1,15 @@
-# PYTHON VISUALIZATION LIBRARY SPECIFICATION
+PYTHON VISUALIZATION LIBRARY SPECIFICATION
 
-## PROJECT OBJECTIVE
+PROJECT OBJECTIVE
 
-Build a lightweight Python visualization library that users can install with pip and import into a Jupyter notebook or Python project.
+Build a lightweight Python visualization library that transforms event-based datasets into visually engaging, publication-quality graphics. The library should focus on storytelling and beautiful visualizations rather than generic statistical charts.
 
-This is not an exploratory data analysis library that prints statistics, summaries, or dictionaries. Its main purpose is to create two polished, reusable data visualizations with minimal configuration.
-
-The finished project should resemble a small, professional open-source package that could realistically be published to PyPI.
+The finished project should resemble a polished open-source package that could realistically be published to PyPI.
 
 The priorities are:
 
 - Simple installation
-- A small and understandable public API
+- Small, intuitive API
 - Beautiful default visualizations
 - Consistent styling
 - Clear documentation
@@ -20,50 +18,47 @@ The priorities are:
 - Reusable code
 - Beginner-friendly usage
 
+------------------------------------------------------------
 
-## PROJECT THEME
+PROJECT THEME
 
-Give the library a visual identity inspired by the positive, celebratory elements of Brazil, including:
+The library should be inspired by the energy and color of Rio de Janeiro's Carnival.
+
+The visual identity should reflect:
 
 - Carnival
 - Samba
-- Brazilian music
-- Dance
-- Tropical landscapes
-- Rio de Janeiro
-- Energy and movement
-- Modern Brazilian graphic design
+- Street blocos
+- Tropical colors
+- Brazilian graphic design
+- Celebration and movement
 
-The inspiration should appear primarily through the color palette, styling, naming, and sample dataset.
+Do not use clip art, flags, costumes, or decorative graphics.
 
-Do not add flags, costumes, people, cultural caricatures, or decorative illustrations directly to the charts.
+The charts should remain professional and presentation-ready.
 
-The charts must remain clean and professional enough to use in presentations, reports, portfolios, and notebooks.
+------------------------------------------------------------
 
+PACKAGE NAME
 
-## SUGGESTED PACKAGE NAME
+Use:
 
-Use the placeholder package name:
+carnaval_viz
 
-`carnaval_viz`
+Import:
 
-Before publishing, verify that the selected package name is available on PyPI.
-
-The import should work as follows:
-
-```python
 import carnaval_viz as viz
-```
 
+------------------------------------------------------------
 
-## TECHNOLOGY REQUIREMENTS
+TECHNOLOGY
 
 Use:
 
 - Python
 - pandas
 - matplotlib
-- numpy, only when needed for numerical operations
+- numpy (only if needed)
 
 Do not use:
 
@@ -72,677 +67,449 @@ Do not use:
 - Streamlit
 - Flask
 - Django
-- Web frameworks
-- Interactive dashboards
-- HTML report generators
 
-Keep the dependency list small.
+Minimum Python version:
 
-The minimum supported Python version should be Python 3.10 or newer.
+Python 3.10
 
+------------------------------------------------------------
 
-## PUBLIC API
+PUBLIC API
 
-Expose exactly two primary visualization functions in version 0.1.0:
+Version 0.1.0 exposes exactly two public functions:
 
-1. `histogram()`
-2. `correlation()`
+viz.bubble_chart()
 
-Users should be able to access both functions directly from the top-level package:
+viz.circular_calendar()
 
-```python
-import carnaval_viz as viz
+------------------------------------------------------------
 
-fig = viz.histogram(df, "danceability")
-fig = viz.correlation(df)
-```
+VISUALIZATION 1
 
-Do not require users to import functions from internal modules.
+Bubble Chart
 
+Function:
 
-## VISUALIZATION 1: HISTOGRAM
-
-### FUNCTION SIGNATURE
-
-```python
-histogram(
+bubble_chart(
     df,
-    column,
+    x,
+    y,
+    size,
+    color,
     *,
-    bins="auto",
     title=None,
-    xlabel=None,
-    show_mean=True,
-    show_median=True,
-    figsize=(10, 6)
+    figsize=(10,8),
+    alpha=0.7,
+    annotate_top=0
 )
-```
 
-### PURPOSE
+Purpose
 
-Create a polished histogram for one numeric DataFrame column.
+Create a publication-quality bubble chart.
 
-### REQUIRED INPUTS
+Each row represents one Carnival bloco.
 
-- df: pandas DataFrame
-- column: name of a numeric column
+Default usage:
 
-### OPTIONAL INPUTS
+x = Year Founded
 
-- bins: histogram bin specification; default should be "auto"
-- title: custom chart title
-- xlabel: custom x-axis label
-- show_mean: whether to display the mean reference line
-- show_median: whether to display the median reference line
-- figsize: Matplotlib figure size
+y = Estimated Audience
 
-### BEHAVIOR
+Bubble Size = Estimated Audience
 
-- Confirm that df is a pandas DataFrame.
-- Confirm that column exists.
-- Confirm that column is numeric.
-- Ignore missing values when plotting.
-- Raise an informative error when no usable numeric values remain.
-- Calculate an appropriate bin count automatically when bins="auto".
-- Create one histogram.
-- Display a mean reference line when show_mean=True.
-- Display a median reference line when show_median=True.
-- Clearly label the mean and median values.
-- Include a legend only when at least one reference line is visible.
-- Use a subtle horizontal grid.
-- Remove unnecessary top and right plot borders.
-- Use clean spacing and readable typography.
-- Generate a sensible default title when title is not supplied.
-- Use the column name as the default x-axis label.
-- Label the y-axis as "Count."
-- Do not modify the original DataFrame.
-- Do not print results.
-- Do not call plt.show() inside the function.
-- Return the Matplotlib Figure object.
+Bubble Color = Region
 
-### VISUAL DESIGN
+Requirements
 
-Use a rich, saturated, Brazil-inspired palette.
+- Validate DataFrame
+- Validate all required columns
+- Ignore missing values
+- Scale bubble sizes automatically
+- Apply transparency
+- Add legend
+- Use Brazil-inspired color palette
+- Clean typography
+- Remove unnecessary borders
+- Light grid
+- Optional annotation of largest events
+- Return the Matplotlib Figure
+- Never call plt.show()
 
-The primary histogram color may be an emerald or tropical green.
+------------------------------------------------------------
 
-Use contrasting colors for the reference lines, such as:
+VISUALIZATION 2
 
-- Mean: warm yellow or gold
-- Median: ocean blue
+Circular Calendar
 
-Avoid neon colors and excessive decoration.
+Function:
 
-The final result should look significantly more polished than a default Matplotlib histogram.
-
-
-## VISUALIZATION 2: CORRELATION HEATMAP
-
-### FUNCTION SIGNATURE
-
-```python
-correlation(
+circular_calendar(
     df,
+    date,
+    size,
+    color,
     *,
-    method="pearson",
-    annotate=True,
     title=None,
-    figsize=None
+    figsize=(10,10)
 )
-```
 
-### PURPOSE
+Purpose
 
-Create a polished correlation heatmap for all usable numeric columns in a DataFrame.
+Display Carnival events around a circular calendar.
 
-### REQUIRED INPUT
+The circular layout represents the Carnival season.
 
-- df: pandas DataFrame
+Each event becomes one point.
 
-### OPTIONAL INPUTS
+Visual Mapping
 
-- method: correlation method; support "pearson", "spearman", and "kendall"
-- annotate: whether to display correlation values
-- title: custom chart title
-- figsize: optional Matplotlib figure size
+Angle
 
-### BEHAVIOR
+↓
 
-- Confirm that df is a pandas DataFrame.
-- Select numeric columns automatically.
-- Require at least two usable numeric columns.
-- Ignore columns that contain no usable numeric data.
-- Calculate the correlation matrix using the requested method.
-- Raise an informative error for unsupported correlation methods.
-- Display correlation values rounded to two decimal places when annotate=True.
-- Use a diverging color map centered at zero.
-- Keep the scale fixed from -1 to 1.
-- Include a labeled color bar.
-- Label the color bar "Correlation."
-- Make column labels easy to read.
-- Rotate labels only as much as necessary.
-- Automatically adjust the figure size based on the number of numeric columns when figsize is not provided.
-- Use a sensible default title when title is not supplied.
-- Use a square or nearly square matrix layout.
-- Avoid unnecessary chart borders and visual clutter.
-- Do not modify the original DataFrame.
-- Do not print results.
-- Do not call plt.show() inside the function.
-- Return the Matplotlib Figure object.
+Event Date
 
-### VISUAL DESIGN
+Radius
 
-Use a custom Brazil-inspired diverging color map.
+↓
 
-Suggested conceptual direction:
+Fixed
 
-- Negative correlations: ocean blue
-- Neutral correlations: light cream or warm neutral
-- Positive correlations: tropical green
+Bubble Size
 
-Use yellow or gold sparingly for highlights, titles, or accents rather than as the central neutral color.
+↓
 
-Ensure that annotation text remains readable on both light and dark cells.
+Estimated Audience
 
-The heatmap should be presentation-ready without requiring additional styling.
+Bubble Color
 
+↓
 
-## SHARED VISUAL STYLE
+Region
 
-Create a shared styling module so both visualizations have a consistent identity.
+Requirements
 
-The shared style should define:
+- Validate DataFrame
+- Validate columns
+- Convert dates automatically
+- Convert dates into angular positions
+- Scale bubbles automatically
+- Brazil-inspired palette
+- Region legend
+- Month labels around the outside
+- Radial grid
+- Clean typography
+- Return the Matplotlib Figure
+- Never call plt.show()
+
+------------------------------------------------------------
+
+SHARED STYLE
+
+Create a shared styling module.
+
+Define:
 
 - Color palette
+- Fonts
+- Grid style
+- Bubble transparency
 - Figure background
-- Axes background
-- Font sizes
+- Axis styling
+- Legend styling
 - Title styling
-- Axis-label styling
-- Grid appearance
-- Border behavior
-- Default spacing
-- Reference-line styles
-- Correlation color map
 
-Suggested palette:
+Suggested palette
 
-- Emerald green
-- Tropical green
-- Warm yellow or gold
-- Ocean blue
+- Emerald Green
+- Tropical Green
+- Ocean Blue
 - Turquoise
+- Gold
 - Coral
-- Warm orange
-- Light cream
-- Dark charcoal
+- Warm Orange
+- Light Cream
+- Charcoal
 
-Use the palette carefully. Do not place every color in every chart.
+Avoid rainbow colors and default Matplotlib styling.
 
-Favor strong contrast, accessibility, and readability.
+------------------------------------------------------------
 
-Use fonts that ship with Matplotlib or are normally available in Python environments. Do not require users to download a custom font.
+DATASET
 
-Do not permanently change global Matplotlib settings when the package is imported.
+Use the supplied Rio Carnival Blocos dataset.
 
-Use a local plotting context or apply styling only to the figures created by the package.
+Expected columns include:
 
+- Bloco Name
+- Estimated Audience
+- Neighborhood
+- Region
+- Event Date
+- Start Time
+- End Time
+- Year Founded
 
-## DATASET
+The dataset should be used throughout:
 
-Use a Brazil-related dataset for examples and documentation.
+- README
+- Example notebook
+- Example script
+- Screenshots
 
-### PREFERRED DATASET
+------------------------------------------------------------
 
-Use a dataset of Brazilian music or Brazilian songs containing numeric audio features such as:
+PROJECT STRUCTURE
 
-- danceability
-- energy
-- tempo
-- loudness
-- acousticness
-- instrumentalness
-- speechiness
-- liveness
-- valence
-- popularity
-- duration_ms
-
-Categorical fields may include:
-
-- artist
-- song title
-- genre
-- release year
-
-The dataset should contain enough numeric features to produce an informative correlation heatmap.
-
-The histogram example should use a column such as:
-
-- danceability
-- energy
-- tempo
-- popularity
-
-The dataset must be legally reusable.
-
-Document its original source, license, creator, and any transformations performed.
-
-Do not commit a dataset to the repository unless its license permits redistribution.
-
-When redistribution is not permitted, include a documented script or notebook that downloads or prepares the data from its original source.
-
-Do not rely on a private API key for the basic example.
-
-If a suitable Brazilian music dataset cannot be found with clear reuse terms, use a reputable public Brazil-related dataset such as:
-
-- Brazilian Olist e-commerce data
-- Brazilian city statistics
-- Brazilian football statistics
-- Brazilian coffee production data
-
-For the Olist dataset, useful numeric columns may include:
-
-- payment_value
-- freight_value
-- price
-- review_score
-- delivery time
-- number of installments
-
-
-## PROJECT STRUCTURE
-
-Use a modern src layout:
-
-```
 project-root/
-├── src/
-│   └── carnaval_viz/
-│       ├── __init__.py
-│       ├── histogram.py
-│       ├── correlation.py
-│       ├── colors.py
-│       ├── styling.py
-│       └── validation.py
-├── tests/
-│   ├── test_histogram.py
-│   ├── test_correlation.py
-│   └── test_validation.py
-├── examples/
-│   ├── brazil_music_demo.py
-│   └── brazil_music_demo.ipynb
-├── assets/
-│   ├── histogram_example.png
-│   └── correlation_example.png
-├── README.md
-├── LICENSE
-├── pyproject.toml
-├── .gitignore
-└── CHANGELOG.md
-```
 
+src/
+    carnaval_viz/
+        __init__.py
+        bubble_chart.py
+        circular_calendar.py
+        styling.py
+        colors.py
+        validation.py
 
-## TOP-LEVEL PACKAGE EXPORTS
+tests/
 
-Configure `__init__.py` so that these imports work:
+examples/
 
-```python
-import carnaval_viz as viz
+assets/
 
-viz.histogram(...)
-viz.correlation(...)
-```
+README.md
 
-Define `__all__` appropriately.
+pyproject.toml
 
-Do not expose internal helpers as part of the primary public API.
+LICENSE
 
+CHANGELOG.md
 
-## INPUT VALIDATION
+------------------------------------------------------------
+
+INPUT VALIDATION
 
 Create reusable validation helpers.
 
-Validation must produce clear, actionable exceptions.
+Raise informative exceptions for:
 
-Examples:
+- Invalid DataFrame
+- Missing columns
+- Invalid date column
+- Invalid numeric columns
+- Empty datasets
+- Missing usable values
 
-- TypeError when df is not a pandas DataFrame
-- KeyError or ValueError when a requested column does not exist
-- TypeError or ValueError when the histogram column is not numeric
-- ValueError when a numeric column contains no usable values
-- ValueError when fewer than two usable numeric columns exist for the correlation heatmap
-- ValueError when the correlation method is unsupported
+------------------------------------------------------------
 
-Error messages should explain what went wrong and how the user can fix it.
+RETURN VALUES
 
+Both functions must return a Matplotlib Figure.
 
-## RETURN VALUES
+Example
 
-Both public functions must return a Matplotlib Figure.
+fig = viz.bubble_chart(...)
 
-Example:
+fig.savefig("bubble_chart.png")
 
-```python
-fig = viz.histogram(df, "danceability")
-fig.savefig("danceability.png", dpi=300, bbox_inches="tight")
-```
+------------------------------------------------------------
 
-The functions should not call plt.show() automatically.
+CODE QUALITY
 
-This allows the library to work in notebooks, scripts, tests, and automated report-generation workflows.
-
-
-## CODE QUALITY
-
-All public functions must include:
+Use:
 
 - Type hints
-- Clear docstrings
-- Parameter descriptions
-- Return-value descriptions
-- Documented exceptions
-- A short usage example
+- Docstrings
+- Clear parameter descriptions
+- Return descriptions
+- Usage examples
 
-Follow standard Python formatting and naming conventions.
+Do not modify the original DataFrame.
 
-Keep functions focused.
+------------------------------------------------------------
 
-Do not create one large function that handles multiple unrelated chart types.
-
-Avoid duplicated style or validation code.
-
-Do not modify input DataFrames.
-
-Do not suppress errors silently.
-
-Do not include unnecessary abstraction or complex class hierarchies.
-
-
-## TESTING REQUIREMENTS
+TESTING
 
 Use pytest.
 
-Test the following histogram behavior:
+Test Bubble Chart
 
-- A valid numeric column creates a Figure.
-- Missing values do not cause failure.
-- An invalid DataFrame input raises an informative error.
-- A missing column raises an informative error.
-- A nonnumeric column raises an informative error.
-- An all-missing numeric column raises an informative error.
-- Mean and median lines can be enabled or disabled.
-- The input DataFrame remains unchanged.
+- Creates Figure
+- Handles missing values
+- Bubble scaling
+- Invalid inputs
+- Missing columns
+- Input DataFrame unchanged
 
-Test the following correlation behavior:
+Test Circular Calendar
 
-- A valid DataFrame creates a Figure.
-- Only numeric columns are included.
-- Missing values are handled.
-- Pearson correlation works.
-- Spearman correlation works.
-- Kendall correlation works.
-- An unsupported method raises an informative error.
-- Fewer than two usable numeric columns raises an informative error.
-- Annotation can be enabled or disabled.
-- The input DataFrame remains unchanged.
+- Creates Figure
+- Correct date conversion
+- Handles missing values
+- Invalid dates
+- Missing columns
+- Input DataFrame unchanged
 
-Configure tests to run without opening graphical windows by using a noninteractive Matplotlib backend.
+------------------------------------------------------------
 
-
-## PACKAGING
+PACKAGING
 
 Create a valid pyproject.toml.
 
-Include:
+Version
 
-- Build-system configuration
-- Package name
-- Version
-- Description
-- Python version requirement
-- Dependencies
-- Author placeholder
-- License information
-- README reference
-- Project classifiers
-- Optional development dependencies
-- Package-discovery configuration for the src layout
+0.1.0
 
-Initial version:
-
-`0.1.0`
-
-Runtime dependencies should remain minimal.
-
-Suggested runtime dependencies:
+Runtime dependencies
 
 - pandas
 - matplotlib
-- numpy, only if required
+- numpy (if needed)
 
-Suggested development dependencies:
+Development dependencies
 
 - pytest
 - build
 - twine
-- ruff or another lightweight linting tool
+- ruff
 
+------------------------------------------------------------
 
-## README REQUIREMENTS
+README
 
-The README must include:
+Include
 
-1. Project name
-2. One-paragraph description
-3. Example images of both visualizations
-4. Installation instructions
-5. Quick-start example
-6. API documentation
-7. Dataset source and license
-8. Development instructions
-9. Testing instructions
-10. Build instructions
-11. License information
+- Project description
+- Installation
+- Quick Start
+- API
+- Dataset description
+- Example images
+- Development instructions
+- Testing
+- Build instructions
+- License
 
-### QUICK-START EXAMPLE
+Example
 
-```python
 import pandas as pd
 import carnaval_viz as viz
 
-df = pd.read_csv("brazilian_music.csv")
+df = pd.read_csv("rio_carnival.csv")
 
-hist_fig = viz.histogram(df, "danceability")
-hist_fig.show()
-
-corr_fig = viz.correlation(df)
-corr_fig.show()
-```
-
-Also demonstrate saving figures:
-
-```python
-hist_fig.savefig(
-    "danceability_histogram.png",
-    dpi=300,
-    bbox_inches="tight"
+viz.bubble_chart(
+    df,
+    x="Year Founded",
+    y="Estimated Audience",
+    size="Estimated Audience",
+    color="Region"
 )
 
-corr_fig.savefig(
-    "music_correlation.png",
-    dpi=300,
-    bbox_inches="tight"
+viz.circular_calendar(
+    df,
+    date="Event Date",
+    size="Estimated Audience",
+    color="Region"
 )
-```
 
+------------------------------------------------------------
 
-## EXAMPLE OUTPUTS
+EXAMPLE OUTPUTS
 
-Generate and save two example images:
+Generate two screenshots.
 
-1. A histogram using a Brazilian music feature such as danceability
-2. A correlation heatmap using the numeric Brazilian music features
+1.
 
-Store the images in the assets directory and display them in the README.
+Bubble Chart
 
-The screenshots should be generated by the actual package functions, not manually recreated.
+Year Founded vs Estimated Audience
 
+Bubble Size = Audience
 
-## LOCAL DEVELOPMENT
+Color = Region
 
-The package must support editable installation:
+2.
 
-```
-python -m pip install -e .
-```
+Circular Calendar
 
-The following must work after installation:
+Every Carnival event plotted around a circular calendar
 
-```python
-import carnaval_viz as viz
+Bubble Size = Audience
 
-print(viz.__all__)
-```
+Color = Region
 
-The result should include:
+------------------------------------------------------------
 
-```
-histogram
-correlation
-```
+LICENSE
 
+MIT License
 
-## BUILD AND VALIDATION
+------------------------------------------------------------
 
-The project must successfully run:
+OUT OF SCOPE
 
-```
-python -m pytest
-python -m build
-python -m twine check dist/*
-```
+Do not build
 
-The build should produce:
+- Dashboard
+- Web application
+- CLI
+- AI features
+- Interactive web graphics
+- Plotly support
+- Additional chart types
 
-- A wheel file
-- A source distribution
+------------------------------------------------------------
 
-Do not publish to TestPyPI or PyPI unless explicitly instructed to do so.
+FUTURE FEATURES
 
-Do not require API tokens or credentials to build or test the project.
+Potential future additions
 
+- Timeline View
+- Festival Heatmap
+- Route Map
+- Neighborhood Density Map
+- Daily Attendance Timeline
+- Event Network Graph
+- Geographic Scatter Map
+- Animated Carnival Progression
+- Bloco Popularity Rankings
 
-## LICENSE
+------------------------------------------------------------
 
-Use a standard open-source license, preferably MIT, unless another license is required.
+DEFINITION OF DONE
 
-Use the official license text.
+The project is complete when:
 
-Do not invent custom license wording.
+- Package installs successfully
+- Both public functions work
+- Bubble Chart generates correctly
+- Circular Calendar generates correctly
+- Shared styling is implemented
+- Validation is complete
+- Tests pass
+- README is complete
+- Screenshots are generated
+- Package builds successfully
+- No publishing occurs without permission
 
-Make sure the dataset license is handled separately from the software license.
+------------------------------------------------------------
 
-
-## GITIGNORE
-
-Include common generated files and directories:
-
-- `__pycache__/`
-- `*.pyc`
-- `.pytest_cache/`
-- `.venv/`
-- `venv/`
-- `dist/`
-- `build/`
-- `*.egg-info/`
-- `.ipynb_checkpoints/`
-- generated temporary files
-
-Do not commit authentication tokens, passwords, secrets, or environment files containing credentials.
-
-
-## OUT OF SCOPE FOR VERSION 0.1.0
-
-Do not build:
-
-- A dashboard
-- A web application
-- An HTML report
-- A command-line interface
-- A custom plotting backend
-- A plugin system
-- Machine-learning analysis
-- AI-generated chart commentary
-- Automatic storytelling
-- Support for Polars, Spark, Dask, or Arrow
-- More than the two required public visualizations
-- Complex themes or theme switching
-- User authentication
-- Data downloading that requires private credentials
-
-
-## POSSIBLE FUTURE FEATURES
-
-Do not implement these in version 0.1.0.
-
-Possible later additions include:
-
-- scatter()
-- boxplot()
-- violin()
-- categorical_bar()
-- missing_heatmap()
-- density()
-- time_series()
-- pairplot()
-- geographic map visualizations
-- additional visual themes
-
-
-## DEFINITION OF DONE
-
-The task is complete only when:
-
-- The package uses the required src layout.
-- The package installs successfully in editable mode.
-- The two visualization functions work through the top-level import.
-- Both functions return Matplotlib Figure objects.
-- Both functions validate their inputs.
-- The original DataFrame is never modified.
-- The plots share a consistent Brazil-inspired style.
-- A legal, documented Brazil-related example dataset is used.
-- Example images are generated from the actual functions.
-- The README contains installation and usage documentation.
-- Automated tests pass.
-- The package builds into a wheel and source distribution.
-- Twine validation passes.
-- No publishing credentials are required.
-- No PyPI upload occurs without explicit permission.
-
-
-## FINAL DELIVERABLES
+FINAL DELIVERABLES
 
 Provide:
 
-- The complete project directory
+- Complete project directory
 - All Python source files
-- pyproject.toml
-- README.md
-- LICENSE
-- CHANGELOG.md
 - Tests
-- Example script
+- README
+- pyproject.toml
+- LICENSE
+- CHANGELOG
 - Example notebook
-- Two generated visualization images
-- Dataset attribution and preparation instructions
-- Commands for installation, testing, building, and validating the package
-
-At the end, provide a concise completion report that lists:
-
-- Files created
-- Public functions implemented
-- Dataset used
-- Tests run and their results
-- Build results
-- Any assumptions or limitations
+- Example script
+- Bubble Chart screenshot
+- Circular Calendar screenshot
+- Installation instructions
+- Build instructions
+- Test instructions
