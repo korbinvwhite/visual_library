@@ -1,0 +1,224 @@
+Carnival Visualization Library Review & Improvement Notes
+
+Overall Assessment
+
+The project is much stronger than a traditional visualization library
+because it has a clear identity. Instead of wrapping common statistical
+charts, it focuses on storytelling using Rio Carnival event data.
+
+Overall rating: - Bubble Chart: 8.5/10 - Circular Calendar: 7/10
+(excellent concept with room for refinement)
+
+=========================================================== BUBBLE CHART
+===========================================================
+
+Strengths
+
+-   Strong visual identity.
+-   Color palette fits the Carnival theme.
+-   Bubble size successfully emphasizes the largest events.
+-   The relationship between year founded and audience tells an
+    interesting story.
+-   Automatic annotation of important events is useful.
+
+Suggested Improvements
+
+1.  Bubble Scaling Use square-root or logarithmic scaling for bubble
+    size instead of linear scaling.
+
+Reason: One extremely large audience dominates the figure and makes
+medium-sized events appear too small.
+
+------------------------------------------------------------------------
+
+2.  Logarithmic Y-Axis
+
+Most points are compressed near the bottom because of one outlier.
+
+A logarithmic y-axis would reveal much more structure while preserving
+the ranking.
+
+------------------------------------------------------------------------
+
+3.  Better Title
+
+Instead of:
+
+estimated_audience vs. year_founded
+
+Consider:
+
+-   Rio Carnival Blocos: Audience vs. Year Founded
+-   Do Older Blocos Attract Larger Crowds?
+-   Carnival Blocos Through Time
+
+------------------------------------------------------------------------
+
+4.  Smarter Labels
+
+Only label the largest 5–10 events automatically.
+
+This keeps the figure clean while highlighting the most important
+blocos.
+
+------------------------------------------------------------------------
+
+5.  Legend Improvements
+
+Rather than alphabetical ordering, consider ordering regions by:
+
+-   Total audience
+-   Number of blocos
+
+This makes the legend more informative.
+
+=========================================================== CIRCULAR
+CALENDAR ===========================================================
+
+Strengths
+
+-   Very original concept.
+-   Fits the Carnival theme naturally.
+-   Bubble size works well.
+-   Color by region is intuitive.
+-   This visualization has the potential to become the library’s
+    signature chart.
+
+Suggested Improvements
+
+1.  Remove Empty Months (Highest Priority)
+
+Currently the chart displays January through December, but the dataset
+only spans roughly January to March.
+
+This leaves most of the visualization empty.
+
+Instead:
+
+Option A (Recommended)
+
+Display only the Carnival season.
+
+For example:
+
+-   Four Weeks Before Carnival
+-   Three Weeks Before Carnival
+-   Two Weeks Before Carnival
+-   One Week Before Carnival
+-   Carnival Week
+-   Ash Wednesday
+
+This creates a balanced radial visualization.
+
+OR
+
+Option B
+
+Only display the months that actually contain events.
+
+------------------------------------------------------------------------
+
+2.  Use Radius Meaningfully
+
+Currently nearly every point sits on the same circular ring.
+
+Instead, let the radius encode another variable.
+
+Ideas:
+
+-   Estimated audience
+-   Start time
+-   Weeks before Carnival
+
+This adds another layer of information without making the chart harder
+to understand.
+
+------------------------------------------------------------------------
+
+3.  Reduce Bubble Overlap
+
+Large bubbles overlap near Carnival.
+
+Suggestions:
+
+-   Slightly reduce maximum bubble size
+-   Increase transparency (alpha around 0.6)
+-   Adjust scaling
+
+------------------------------------------------------------------------
+
+4.  Better Title
+
+Instead of:
+
+Circular Calendar
+
+Consider:
+
+-   Rio Carnival 2018 Parade Calendar
+-   Rio Carnival Blocos Through Time
+-   When Rio Celebrates
+-   Carnival Season Calendar
+
+=========================================================== API
+SUGGESTIONS ===========================================================
+
+Instead of:
+
+viz.circular_calendar()
+
+Consider:
+
+-   viz.carnival_calendar()
+-   viz.radial_calendar()
+
+These names better communicate the purpose of the visualization.
+
+=========================================================== GENERAL
+PROJECT IMPROVEMENTS
+===========================================================
+
+The biggest improvement to the project was moving away from generic
+charts like:
+
+-   Histogram
+-   Correlation Heatmap
+
+toward two unique visualizations:
+
+-   Bubble Chart
+-   Circular Calendar
+
+This gives the package a much stronger identity.
+
+The project becomes:
+
+“A visualization library for exploring Rio Carnival event data.”
+
+rather than
+
+“A wrapper around common Matplotlib charts.”
+
+=========================================================== FUTURE
+FEATURES ===========================================================
+
+Possible future visualizations:
+
+-   Festival Timeline
+-   Route Map
+-   Neighborhood Density Map
+-   Daily Attendance Timeline
+-   Geographic Scatter Map
+-   Event Network Graph
+-   Animated Carnival Progression
+-   Bloco Popularity Rankings
+
+=========================================================== FINAL
+THOUGHTS ===========================================================
+
+The Bubble Chart is already very polished and useful.
+
+The Circular Calendar is the chart that can differentiate the project
+from other visualization libraries. With improvements to the radial
+layout, bubble scaling, and use of the radius, it has the potential to
+become a memorable signature visualization.
