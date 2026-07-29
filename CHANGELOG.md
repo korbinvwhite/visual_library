@@ -17,3 +17,4 @@ Initial release.
 - Following a design review, renamed `circular_calendar()` to `carnival_calendar()` and reworked it: angle now scopes to the season's own date range instead of the full year (with tick labels counting down in weeks to the final event date), and radius now encodes event time of day instead of being fixed.
 - `bubble_chart()`: switched to square-root bubble scaling and a log-scaled y-axis (both configurable) to prevent a single large outlier from crushing every other value; legend now orders categories by total size instead of alphabetically; improved default title; y-axis tick labels now show "100", "1K", "1M" instead of scientific notation like "10^6".
 - `carnival_calendar()`: radial tick labels now show ordinary 12-hour clock times (e.g. "4:00 PM") instead of 24-hour time.
+- Shared style: warm cream figure background (`#FAF7F2`), muted-gold chart titles (`#B8860B`), with the plotting area itself staying white on top of the cream background.

@@ -20,10 +20,11 @@ WARM_ORANGE = "#F28C28"
 LIGHT_CREAM = "#FBF4E4"
 DARK_CHARCOAL = "#2B2B2B"
 
-FIGURE_BACKGROUND = "#FFFFFF"
+FIGURE_BACKGROUND = "#FAF7F2"
 AXES_BACKGROUND = "#FFFFFF"
 GRID_COLOR = "#D9D2C4"
 TEXT_COLOR = DARK_CHARCOAL
+TITLE_COLOR = "#B8860B"
 
 # Qualitative palette used to color categories (e.g. Region) in the bubble
 # chart and circular calendar. Ordered for strong contrast between

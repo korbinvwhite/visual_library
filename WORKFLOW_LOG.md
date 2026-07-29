@@ -125,3 +125,12 @@ You asked for two small usability fixes:
 
 Both are small, self-contained changes -- no spec conflicts, no new bugs. Verified visually against the regenerated example images and re-ran the full test suite (33/33 passing).
 
+### 2026-07-29 — Shared visual style: cream background, gold titles
+
+Three related styling requests, all in `colors.py`/`styling.py` (the shared style both charts pull from):
+- Figure background changed to a warm cream (`#FAF7F2`) instead of plain white.
+- Chart titles changed to a muted gold (`#B8860B`) instead of dark charcoal.
+- Confirmed the actual plotting area (as opposed to the figure background around it) stays white, sitting on top of the cream background -- this was already true by design (figure background and axes background were already two separate settings), just needed the two colors to actually differ for the contrast to become visible.
+
+One interesting wrinkle worth noting for later: for the Carnival calendar specifically, Matplotlib's polar-plot background patch is circular, not a full rectangle -- so the white plotting area there renders as a white disk (like a clock face) rather than a white square, which arguably reads better for that chart than a plain rectangle would have. Verified both example images visually and re-ran the full test suite (33/33 passing) before checking in.
+

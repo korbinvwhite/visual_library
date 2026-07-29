@@ -25,7 +25,7 @@ _STYLE_RC = {
     "axes.facecolor": colors.AXES_BACKGROUND,
     "axes.edgecolor": colors.TEXT_COLOR,
     "axes.labelcolor": colors.TEXT_COLOR,
-    "axes.titlecolor": colors.TEXT_COLOR,
+    "axes.titlecolor": colors.TITLE_COLOR,
     "axes.titlesize": 15,
     "axes.titleweight": "bold",
     "axes.labelsize": 11,
